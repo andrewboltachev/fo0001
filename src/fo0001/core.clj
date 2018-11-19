@@ -9,7 +9,7 @@
    :body
    "Hello World! yeah!\n"})
 
-(defn- main []
+(defn -main []
   "I don't do a whole lot."
   (run-jetty
     (->
