@@ -1,39 +1,52 @@
 (ns fo0001.print)
 
-(defn pprint [form pred & [level]]
+(defn find-and-pprint [form pred & [level]]
   (let [level (or level 0)
-        self (fn [new-form] (pprint new-form pred (inc level)))
+        self (fn [new-form] (find-and-pprint new-form pred (inc level)))
         printl
         (fn [value]
 
-          (print (repeat level "  ")) ; 2 spaces ident
-          (print value))]
+          (print (clojure.string/join (repeat level "  "))) ; 2 spaces ident
+          (print value))
+
+        print-map
+        (fn [form]
+          (let [l (count form)]
+            (printl "{")
+            (doseq [[index [k v]] (map-indexed list form)]
+              (find-and-pprint k pred (if (zero? index) 0 (inc level)))
+              (newline)
+              (find-and-pprint v pred (inc level))
+              (when (not= index (dec l))
+                (newline)
+                (newline)))
+            (print "}")))
+
+        print-list-or-vec
+        (fn [form lbrace rbrace]
+          (let [l (count form)]
+            (printl lbrace)
+            (doseq [[index value] (map-indexed list form)]
+              (find-and-pprint value pred (if (zero? index) 0 (inc level)))
+              (when (not= index (dec l))
+                (newline)))
+            (print rbrace)))]
 
     (cond
       (list? form)
-      (do
-        (printl "(")
-        (doall (map self form))
-        (printl ")"))
+      (print-list-or-vec form "(" ")")
+
+      (vector? form)
+      (print-list-or-vec form "[" "]")
 
       (map? form)
+      (print-map form)
+
+      (some true? ((juxt
+                    symbol? keyword?
+                    string? number? true? false? nil?) form))
       (do
-        (printl "{")
-        (doseq [[k v] form]
-          (self k)
-          (newline)
-          (self v)
-          (newline)
-          (newline))
-        (printl "}")
-        (newline))
+        (print (clojure.string/join (repeat level "  ")))
+        (pr form))
 
-      ;(instance? clojure.lang.IRecord form)
-      ;(outer (reduce (fn [r x] (conj r (inner x))) form form))
-
-      ;(coll? form) (outer (into (empty form) (map inner form)))
-
-      (some true? ((juxt string? number? true? false? nil?) form))
-      (pr-str form)
-
-      :else (outer form))))
+      :else (throw (Exception. (str "Unknown form: " (pr-str form)))))))

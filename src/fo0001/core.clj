@@ -5,7 +5,8 @@
             [clojure.tools.reader :as r]
             [clojure.tools.reader.reader-types :refer [indexing-push-back-reader]]
             [cljs.tagged-literals]
-            [puget.printer :refer [cprint]]))
+            [puget.printer :refer [cprint]]
+            [fo0001.print :refer [find-and-pprint]]))
 
 (defn tree-seq1 [root]
   (tree-seq #(or (sequential? %) (map? %)) #(if (map? %) (concat (keys %) (vals %)) %) root))
@@ -36,7 +37,9 @@
         (loop [v (read1 ipbr)]
           (when (contains? (set (tree-seq1 v)) needle)
             (println (.getPath file))
-            (cprint v)
+            ;(cprint v)
+            (find-and-pprint v identity)
+
             (newline))
           (when v
             (recur
