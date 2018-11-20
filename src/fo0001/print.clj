@@ -31,7 +31,7 @@
               (when (not= index (dec l))
                 (newline)))
             (print rbrace)))]
-    (when (pred form) (println "\u001b[31;1m"))
+    (when (pred form) (print "\u001b[31;1m"))
 
     (cond
       (list? form)
@@ -39,6 +39,9 @@
 
       (vector? form)
       (print-list-or-vec form "[" "]")
+
+      (set? form)
+      (print-list-or-vec form "#{" "}")
 
       (map? form)
       (print-map form)
@@ -53,4 +56,4 @@
       :else (throw (Exception. (str "Unknown form: " (pr-str form)))))
     
     
-    (when (pred form) (println "\u001b[m"))))
+    (when (pred form) (print "\u001b[m"))))
