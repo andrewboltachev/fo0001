@@ -34,14 +34,9 @@
                         (java.io.PushbackReader.)
                         indexing-push-back-reader)]]
         (loop [v (read1 ipbr)]
-
-          #_(prn
-
-             (tree-seq1 v))
-
           (when (contains? (set (tree-seq1 v)) needle)
-            (prn (.getPath file))
-            (prn v)
+            (println (.getPath file))
+            (cprint v)
             (newline))
           (when v
             (recur
