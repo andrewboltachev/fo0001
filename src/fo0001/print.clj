@@ -31,6 +31,7 @@
               (when (not= index (dec l))
                 (newline)))
             (print rbrace)))]
+    (when (pred form) (println "\u001b[31;1m"))
 
     (cond
       (list? form)
@@ -49,4 +50,7 @@
         (print (clojure.string/join (repeat level "  ")))
         (pr form))
 
-      :else (throw (Exception. (str "Unknown form: " (pr-str form)))))))
+      :else (throw (Exception. (str "Unknown form: " (pr-str form)))))
+    
+    
+    (when (pred form) (println "\u001b[m"))))

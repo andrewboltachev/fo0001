@@ -28,6 +28,7 @@
                   (clojure.tools.reader/read ipbr)
                   (catch Exception e)))]
     (binding [clojure.tools.reader/*data-readers* cljs.tagged-literals/*cljs-data-readers*]
+      (println "~~~ NEW SEARCH ~~~")
       (doseq [file clojure-file-list
               :let [ipbr
                     (-> file
@@ -37,13 +38,12 @@
         (loop [v (read1 ipbr)]
           (when (contains? (set (tree-seq1 v)) needle)
             (println (.getPath file))
-            ;(cprint v)
-            (find-and-pprint v identity)
-
+            (find-and-pprint v (partial = needle))
             (newline))
           (when v
             (recur
-             (read1 ipbr))))))
+             (read1 ipbr)))))
+      (println "~~~ END ~~~"))
 
     {:status 200
      :headers {"Content-Type" "text/plain"}
