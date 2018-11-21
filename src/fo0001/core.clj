@@ -14,7 +14,14 @@
 (defn handler [request]
   (let [[path needle] (get-in request [:body :args])
 
+        is-a-function? (clojure.string/starts-with? needle "!")
+        needle (cond->
+                needle
+                 is-a-function? (subs 1))
         needle (r/read-string needle)
+        needle (cond->
+                needle
+                 is-a-function? eval)
 
         file-list (file-seq (clojure.java.io/file path))
 
@@ -38,7 +45,11 @@
         (loop [v (read1 ipbr)]
           (when (contains? (set (tree-seq1 v)) needle)
             (println (.getPath file))
-            (find-and-pprint v (partial = needle))
+            (find-and-pprint v
+                             (if
+                              is-a-function?
+                               needle
+                               (partial = needle)))
             (newline))
           (when v
             (recur
