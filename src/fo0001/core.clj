@@ -35,7 +35,7 @@
                   (clojure.tools.reader/read ipbr)
                   (catch Exception e)))]
     (binding [clojure.tools.reader/*data-readers* cljs.tagged-literals/*cljs-data-readers*]
-      (println "~~~ NEW SEARCH ~~~")
+      (println "~~~ NEW SEARCH ~~~" needle is-a-function?)
       (doseq [file clojure-file-list
               :let [ipbr
                     (-> file
@@ -43,17 +43,21 @@
                         (java.io.PushbackReader.)
                         indexing-push-back-reader)]]
         (loop [v (read1 ipbr)]
-          (when (contains? (set (tree-seq1 v)) needle)
-            (println (.getPath file))
-            (find-and-pprint v
-                             (if
-                              is-a-function?
-                               needle
-                               (partial = needle)))
-            (newline))
-          (when v
-            (recur
-             (read1 ipbr)))))
+          (let [ts (set (tree-seq1 v))]
+            (when (if
+                   is-a-function?
+                    (not (empty? (filter needle ts)))
+                    (contains? ts needle))
+              (println "\u001b[34m" (.getPath file) "\u001b[m")
+              (find-and-pprint v
+                               (if
+                                is-a-function?
+                                 needle
+                                 (partial = needle)))
+              (newline))
+            (when v
+              (recur
+               (read1 ipbr))))))
       (println "~~~ END ~~~"))
 
     {:status 200
