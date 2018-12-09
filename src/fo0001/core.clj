@@ -42,14 +42,14 @@
               :let [ipbr (file-reader file)]
               ;:when (= (.getPath file) "/home/andrey/pribrano/pribrano/CreatedByMe/Programming/Work/Upwork/Sebastien_Beal/admin-dashboard/src/cljs/locarise/subs.cljs")
               ]
-        (println "\u001b[34m" (.getPath file) "\u001b[m")
         (loop [v (read1 ipbr)]
           (when v
             (let [p? (if is-a-function?
                        needle
                        #(= needle %))
                   search-result (with-out-str (find-and-print v p?))]
-              (if (clojure.string/includes? search-result marker-start)
+              (when (clojure.string/includes? search-result marker-start)
+                (println "\u001b[34m" (.getPath file) "\u001b[m")
                 (println search-result))
               (recur
                (read1 ipbr))))))
