@@ -8,6 +8,7 @@
                  [ring/ring-jetty-adapter "1.6.3"]
                  [ring/ring-devel "1.6.3"]
                  [ring/ring-json "0.4.0"]
+                 [rewrite-clj "0.6.2-SNAPSHOT"]
                  [mvxcvi/puget "1.0.3"]]
   :plugins [[lein-cljfmt "0.6.1"]]
   :main ^:skip-aot fo0001.core)
