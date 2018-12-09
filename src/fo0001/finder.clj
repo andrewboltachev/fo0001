@@ -6,24 +6,32 @@
    [rewrite-clj.node.protocols :as np]
    [rewrite-clj.custom-zipper.core :as cz]))
 
-(def ^:dynamic marker-start "\u001b[34m")
+(def ^:dynamic marker-start "\u001b[31m")
 (def ^:dynamic marker-end "\u001b[m")
 
 (defrecord MarkerNode [child]
   np/Node
-  (sexpr [_] (np/sexpr child))
-  (printable-only? [_] false)
+  (sexpr [_]
+    (when-not
+      (np/printable-only? child)
+      (np/sexpr child)))
+  (printable-only? [_]
+    (np/printable-only? child))
   (string [this]
-    ;(prn child)
     (str
      marker-start
-     (np/string child)
+    ;(if-not
+    ;  (np/printable-only? child)
+      (np/string child)
+    ;  (pr-str child))
      marker-end)))
 
 (defn find-and-mark [data p?]
-  (zw/postwalk
+  (zw/prewalk
     data
-    #(-> % z/sexpr p?)
+    #(and
+       (not (np/printable-only? (z/node %)))
+       (-> % z/sexpr p?))
     #(cz/replace % (MarkerNode. (z/node %)))))
 
 (defn print-out [data]

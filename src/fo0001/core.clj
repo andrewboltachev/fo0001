@@ -39,16 +39,18 @@
     (binding [clojure.tools.reader/*data-readers* cljs.tagged-literals/*cljs-data-readers*]
       (println "~~~ NEW SEARCH ~~~" needle is-a-function?)
       (doseq [file clojure-file-list
-              :let [ipbr (file-reader file)]]
+              :let [ipbr (file-reader file)]
+              ;:when (= (.getPath file) "/home/andrey/pribrano/pribrano/CreatedByMe/Programming/Work/Upwork/Sebastien_Beal/admin-dashboard/src/cljs/locarise/subs.cljs")
+              ]
         (println "\u001b[34m" (.getPath file) "\u001b[m")
         (loop [v (read1 ipbr)]
-          (let [p? (fn [thing]
-                     (if is-a-function?
+          (when v
+            (let [p? (if is-a-function?
                        needle
-                       #(= needle %)))
-                search-result (find-and-print v p?)]
-            (println search-result)
-            (when v
+                       #(= needle %))
+                  search-result (with-out-str (find-and-print v p?))]
+              (if (clojure.string/includes? search-result marker-start)
+                (println search-result))
               (recur
                (read1 ipbr))))))
       (println "~~~ END ~~~"))
