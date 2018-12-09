@@ -14,16 +14,24 @@
   (sexpr [_] (np/sexpr child))
   (printable-only? [_] false)
   (string [this]
+    ;(prn child)
     (str
      marker-start
      (np/string child)
      marker-end)))
 
 (defn find-and-mark [data p?]
-  edited (zw/postwalk
-          data
-          #(-> % z/sexpr p?)
-          #(cz/replace % (MarkerNode. (z/node %)))))
+  (zw/postwalk
+    data
+    #(-> % z/sexpr p?)
+    #(cz/replace % (MarkerNode. (z/node %)))))
 
 (defn print-out [data]
   (z/print-root data))
+
+(defn find-and-print [data p?]
+  (->
+    data
+    z/edn
+    (find-and-mark p?)
+    print-out))

@@ -3,10 +3,12 @@
             [ring.middleware.reload :refer [wrap-reload]]
             [ring.middleware.json :refer [wrap-json-body]]
             [clojure.tools.reader :as r]
-            [clojure.tools.reader.reader-types :refer [indexing-push-back-reader]]
+            [rewrite-clj.reader :refer [file-reader]]
+            [rewrite-clj.parser]
             [cljs.tagged-literals]
             [puget.printer :refer [cprint]]
-            [fo0001.print :refer [find-and-pprint]]))
+            [fo0001.finder :refer [find-and-print
+                                   marker-start]]))
 
 (defn tree-seq1 [root]
   (tree-seq #(or (sequential? %) (map? %)) #(if (map? %) (concat (keys %) (vals %)) %) root))
@@ -32,29 +34,20 @@
 
         read1 (fn [ipbr]
                 (try
-                  (clojure.tools.reader/read ipbr)
+                  (rewrite-clj.parser/parse ipbr)
                   (catch Exception e)))]
     (binding [clojure.tools.reader/*data-readers* cljs.tagged-literals/*cljs-data-readers*]
       (println "~~~ NEW SEARCH ~~~" needle is-a-function?)
       (doseq [file clojure-file-list
-              :let [ipbr
-                    (-> file
-                        (java.io.FileReader.)
-                        (java.io.PushbackReader.)
-                        indexing-push-back-reader)]]
+              :let [ipbr (file-reader file)]]
+        (println "\u001b[34m" (.getPath file) "\u001b[m")
         (loop [v (read1 ipbr)]
-          (let [ts (set (tree-seq1 v))]
-            (when (if
-                   is-a-function?
-                    (not (empty? (filter needle ts)))
-                    (contains? ts needle))
-              (println "\u001b[34m" (.getPath file) "\u001b[m")
-              (find-and-pprint v
-                               (if
-                                is-a-function?
-                                 needle
-                                 (partial = needle)))
-              (newline))
+          (let [p? (fn [thing]
+                     (if is-a-function?
+                       needle
+                       #(= needle %)))
+                search-result (find-and-print v p?)]
+            (println search-result)
             (when v
               (recur
                (read1 ipbr))))))
