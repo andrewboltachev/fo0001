@@ -6,7 +6,7 @@
    [rewrite-clj.node.protocols :as np]
    [rewrite-clj.custom-zipper.core :as cz]))
 
-(def ^:dynamic marker-start "\u001b[31m")
+(def ^:dynamic marker-start "\u001b[31m\u001b[1m")
 (def ^:dynamic marker-end "\u001b[m")
 
 (defrecord MarkerNode [child]

@@ -9,6 +9,7 @@
                  [ring/ring-devel "1.6.3"]
                  [ring/ring-json "0.4.0"]
                  [rewrite-clj "0.6.2-SNAPSHOT"]
-                 [mvxcvi/puget "1.0.3"]]
+                 [mvxcvi/puget "1.0.3"]
+                 [org.clojure/tools.cli "0.4.1"]]
   :plugins [[lein-cljfmt "0.6.1"]]
   :main ^:skip-aot fo0001.core)
