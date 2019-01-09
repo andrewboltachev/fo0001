@@ -3,6 +3,9 @@ Clojure value finder (like `grep`)
 
 Search for exact values in your Clojure project. No need to install. Try using through-the-web 1-liner.
 
+![Usage](http://91.211.245.19/fo0001-usage.png)
+
+
 E.g. search for a symbol
 ------------------------
 ```clojure
