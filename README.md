@@ -21,7 +21,7 @@ curl -s http://91.211.245.19/try-value-finder-ttw.sh | bash /dev/stdin "marker-s
 
 Parametric search -- prepend with `!`
 -------------------------------------
-E.g. serarch for all symbols, whose namespace is `"clojure.string"`:
+Serarch for all symbols, whose namespace is `"clojure.string"`:
 ```clojure
 curl -s http://91.211.245.19/try-value-finder-ttw.sh | bash /dev/stdin '!(fn [x] (and (symbol? x) (-> x namespace (= "clojure.string"))))'
 ```
