@@ -71,10 +71,12 @@
                                      flag))))]
 
                   (doseq [[index line] (map-indexed list lines)
-                          :when (contains? (set indices) index)]
+                          :when (contains? (set indices) index)
+                          :let [begin (when-not (clojure.string/includes? line marker-start) marker-start)
+                                end (when-not (clojure.string/includes? line marker-end) marker-end)]]
                     (when single-line-mode?
                       (print "\u001b[34m" (.getPath file) "\u001b[m"))
-                    (println line))))
+                    (println (str begin line end)))))
 
               (recur
                (read1 ipbr))))))
