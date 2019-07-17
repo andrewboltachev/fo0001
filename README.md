@@ -3,13 +3,13 @@ Clojure value finder (like `grep`)
 
 Search for exact values in your Clojure project. No need to install. Try using through-the-web 1-liner.
 
-![Usage](http://185.80.129.60/fo0001-usage.png)
+![Usage](http://fo0001.s3-website.eu-west-2.amazonaws.com/fo0001-usage.png)
 
 
 E.g. search for a symbol
 ------------------------
 ```clojure
-curl -s http://185.80.129.60/try-value-finder-ttw.sh | bash /dev/stdin "marker-start"
+curl -s http://fo0001.s3-website.eu-west-2.amazonaws.com/try-value-finder-ttw.sh | bash /dev/stdin "marker-start"
 ```
 ```
  ./fo0001/src/fo0001/finder.clj (def ^:dynamic marker-start "\u001b[31m\u001b[1m")
@@ -23,7 +23,7 @@ Parametric search -- prepend with `!`
 -------------------------------------
 Serarch for all symbols, whose namespace is `"clojure.string"`:
 ```clojure
-curl -s http://185.80.129.60/try-value-finder-ttw.sh | bash /dev/stdin '!(fn [x] (and (symbol? x) (-> x namespace (= "clojure.string"))))'
+curl -s http://fo0001.s3-website.eu-west-2.amazonaws.com/try-value-finder-ttw.sh | bash /dev/stdin '!(fn [x] (and (symbol? x) (-> x namespace (= "clojure.string"))))'
 ```
 ```
  ./fo0001/src/fo0001/print.clj           (print (clojure.string/join (repeat level "  "))) ; 2 spaces ident
