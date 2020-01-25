@@ -45,19 +45,44 @@
                                     p?
                                     n/coerce)))))
 
+(defn just-replace [data p?]
+  (zw/prewalk
+    data
+    #(and
+       (not (np/printable-only? (z/node %)))
+       (-> % z/sexpr p?))
+    #(cz/replace % (-> %
+                                    z/sexpr
+                                    p?
+                                    n/coerce))))
+
 (defn print-out [data]
   (z/print-root data))
 
 (defn find-and-print [data p?]
-  (->
-    data
-    z/edn
-    (find-and-mark p?)
-    print-out))
+  {:search-result
+    (with-out-str 
+      (->
+        data
+        z/edn
+        (find-and-mark p?)
+        print-out))})
 
 (defn replace-and-print [data p?]
-  (->
-    data
-    z/edn
-    (replace-and-mark p?)
-    print-out))
+  #_(binding [*print-meta* true]
+    (println (class data)))
+  (let [search-result
+        (with-out-str 
+      (->
+        data
+        z/edn
+        (replace-and-mark p?)
+        print-out))
+        ]
+  {:search-result
+    search-result
+    
+    :replacement
+    (-> search-result
+      (clojure.string/replace marker-start "")
+      (clojure.string/replace marker-end ""))}))

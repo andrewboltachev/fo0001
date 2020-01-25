@@ -1,9 +1,10 @@
 (ns fo0001.base
   (:require [clojure.tools.reader :as r]
+            [clojure.tools.reader.reader-types :as rt]
             [rewrite-clj.reader :refer [file-reader]]
             [rewrite-clj.parser]
             [cljs.tagged-literals]
-            [fo0001.finder :refer [find-and-print replace-and-print marker-start marker-end]]
+            [fo0001.finder :refer [find-and-print replace-and-print marker-start marker-end print-out]]
             [puget.printer :refer [cprint]]))
 
 
@@ -46,13 +47,18 @@
         (println "~~~ NEW SEARCH ~~~" needle is-find-function? is-replacement-function?))
       (doseq [file clojure-file-list
               :let [ipbr (file-reader file)]]
-        (loop [v (read1 ipbr)]
+        (let [output
+        (loop [v (read1 ipbr)
+               output []
+               replace? false]
+          ;(println (rt/get-line-number ipbr) (rt/get-column-number ipbr))
           (when v
             (let [p? (if (or is-find-function? is-replacement-function?)
                        needle
                        #(= needle %))
                   f (if is-replacement-function? replace-and-print find-and-print)
-                  search-result (with-out-str (f v p?))]
+                  {:keys [search-result replacement]} (f v p?)
+                  replace? (or replace? (some? replacement))]
               (when (clojure.string/includes? search-result marker-start)
                 (when-not single-line-mode?
                   (println "\u001b[34m" (.getPath file) "\u001b[m"))
@@ -87,5 +93,14 @@
                     (println (str begin line end)))))
 
               (recur
-               (read1 ipbr))))))
+               (read1 ipbr)
+               (when is-replacement-function?
+                (conj output
+                      (or replacement
+                          (print-out v))))
+               replace?))))]
+          
+          (when is-replacement-function?
+            (spit file (clojure.string/join output))
+          )))
       (when print-start-end? (println "~~~ END ~~~")))))
