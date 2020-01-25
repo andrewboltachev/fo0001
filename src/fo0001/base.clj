@@ -3,7 +3,7 @@
             [rewrite-clj.reader :refer [file-reader]]
             [rewrite-clj.parser]
             [cljs.tagged-literals]
-            [fo0001.finder :refer [find-and-print marker-start marker-end]]
+            [fo0001.finder :refer [find-and-print replace-and-print marker-start marker-end]]
             [puget.printer :refer [cprint]]))
 
 
@@ -12,14 +12,21 @@
 
 (defn do-find-operation [path needle {:keys [a b print-start-end?] :or {a 0 b 0}}]
   (let [single-line-mode? (and (zero? a) (zero? b))
-        is-a-function? (clojure.string/starts-with? needle "!")
+        is-replacement-function? (clojure.string/starts-with? needle "!!")
+        is-find-function? (and
+                            (not is-replacement-function?)
+                            (clojure.string/starts-with? needle "!"))
         needle (cond->
                 needle
-                 is-a-function? (subs 1))
+                is-replacement-function? (subs 2)
+                is-find-function? (subs 1))
         needle (r/read-string needle)
         needle (cond->
                 needle
-                 is-a-function? eval)
+                 (or
+                   is-find-function?
+                   is-replacement-function?)
+                 eval)
 
         file-list (file-seq (clojure.java.io/file path))
 
@@ -36,15 +43,16 @@
                   (catch Exception e)))]
     (binding [clojure.tools.reader/*data-readers* cljs.tagged-literals/*cljs-data-readers*]
       (when print-start-end?
-        (println "~~~ NEW SEARCH ~~~" needle is-a-function?))
+        (println "~~~ NEW SEARCH ~~~" needle is-find-function? is-replacement-function?))
       (doseq [file clojure-file-list
               :let [ipbr (file-reader file)]]
         (loop [v (read1 ipbr)]
           (when v
-            (let [p? (if is-a-function?
+            (let [p? (if (or is-find-function? is-replacement-function?)
                        needle
                        #(= needle %))
-                  search-result (with-out-str (find-and-print v p?))]
+                  f (if is-replacement-function? replace-and-print find-and-print)
+                  search-result (with-out-str (f v p?))]
               (when (clojure.string/includes? search-result marker-start)
                 (when-not single-line-mode?
                   (println "\u001b[34m" (.getPath file) "\u001b[m"))

@@ -34,6 +34,17 @@
        (-> % z/sexpr p?))
     #(cz/replace % (MarkerNode. (z/node %)))))
 
+(defn replace-and-mark [data p?]
+  (zw/prewalk
+    data
+    #(and
+       (not (np/printable-only? (z/node %)))
+       (-> % z/sexpr p?))
+    #(cz/replace % (MarkerNode. (-> %
+                                    z/sexpr
+                                    p?
+                                    n/coerce)))))
+
 (defn print-out [data]
   (z/print-root data))
 
@@ -42,4 +53,11 @@
     data
     z/edn
     (find-and-mark p?)
+    print-out))
+
+(defn replace-and-print [data p?]
+  (->
+    data
+    z/edn
+    (replace-and-mark p?)
     print-out))
