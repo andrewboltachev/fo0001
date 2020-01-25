@@ -5,7 +5,8 @@
             [rewrite-clj.parser]
             [cljs.tagged-literals]
             [fo0001.finder :refer [find-and-print replace-and-print marker-start marker-end print-out]]
-            [puget.printer :refer [cprint]]))
+            [puget.printer :refer [cprint]]
+            [clojure.java.shell]))
 
 
 (defn tree-seq1 [root]
@@ -42,6 +43,11 @@
                 (try
                   (rewrite-clj.parser/parse ipbr)
                   (catch Exception e)))]
+    (when is-replacement-function?
+      (when-not (= (clojure.java.shell/sh "git" "status" "--short")
+                   {:exit 0, :out "", :err ""})
+        (println "Error: git tree not clean")
+        (System/exit 1)))
     (binding [clojure.tools.reader/*data-readers* cljs.tagged-literals/*cljs-data-readers*]
       (when print-start-end?
         (println "~~~ NEW SEARCH ~~~" needle is-find-function? is-replacement-function?))
