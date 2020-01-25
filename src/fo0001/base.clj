@@ -47,18 +47,21 @@
         (println "~~~ NEW SEARCH ~~~" needle is-find-function? is-replacement-function?))
       (doseq [file clojure-file-list
               :let [ipbr (file-reader file)]]
-        (let [output
+        (let [[replace? output]
         (loop [v (read1 ipbr)
                output []
                replace? false]
           ;(println (rt/get-line-number ipbr) (rt/get-column-number ipbr))
-          (when v
+          (if (nil? v)
+            [replace? output]
             (let [p? (if (or is-find-function? is-replacement-function?)
                        needle
                        #(= needle %))
                   f (if is-replacement-function? replace-and-print find-and-print)
                   {:keys [search-result replacement]} (f v p?)
-                  replace? (or replace? (some? replacement))]
+                  replace? (or replace?
+                               (clojure.string/includes? search-result marker-start)
+                               )]
               (when (clojure.string/includes? search-result marker-start)
                 (when-not single-line-mode?
                   (println "\u001b[34m" (.getPath file) "\u001b[m"))
@@ -100,7 +103,11 @@
                           (print-out v))))
                replace?))))]
           
-          (when is-replacement-function?
-            (spit file (clojure.string/join output))
+          (when (and is-replacement-function? replace?)
+            (spit (clojure.string/join output) (clojure.string/join output))
+            ;(println (.getPath file))
+            ;(println (clojure.string/join output))
+            ;(newline)
+            ;(newline)
           )))
       (when print-start-end? (println "~~~ END ~~~")))))
