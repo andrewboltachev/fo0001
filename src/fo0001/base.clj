@@ -104,7 +104,7 @@
                replace?))))]
           
           (when (and is-replacement-function? replace?)
-            (spit (clojure.string/join output) (clojure.string/join output))
+            (spit (.getPath file) (clojure.string/join output))
             ;(println (.getPath file))
             ;(println (clojure.string/join output))
             ;(newline)
